@@ -156,10 +156,10 @@ const Index = () => {
                 <ExportButtons 
                   data={filteredData} 
                   filters={{
-                    departments: selectedDepartments,
-                    projects: selectedProjects,
-                    services: selectedServices,
-                    timeRanges: selectedTimeRanges
+                    department: selectedDepartments.join(', '),
+                    project: selectedProjects.join(', '),
+                    service: selectedServices.join(', '),
+                    timeRange: selectedTimeRanges.join(', ')
                   }} 
                 />
               </div>
