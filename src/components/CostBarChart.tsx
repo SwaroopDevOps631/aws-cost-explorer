@@ -34,6 +34,10 @@ const CostBarChart: React.FC<CostBarChartProps> = ({ data, groupBy }) => {
     return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
   };
 
+  const customTooltipFormatter = (value: any, name: any) => {
+    return [formatCurrency(value), 'Cost'];
+  };
+
   return (
     <div className="w-full h-96">
       <ResponsiveContainer width="100%" height="100%">
@@ -56,7 +60,7 @@ const CostBarChart: React.FC<CostBarChartProps> = ({ data, groupBy }) => {
           />
           <YAxis tickFormatter={formatCurrency} />
           <Tooltip 
-            formatter={[formatCurrency, 'Cost']}
+            formatter={customTooltipFormatter}
             labelStyle={{ color: '#333' }}
             contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc' }}
           />

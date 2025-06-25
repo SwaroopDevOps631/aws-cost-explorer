@@ -38,6 +38,10 @@ const CostPieChart: React.FC<CostPieChartProps> = ({ data, groupBy }) => {
     return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
   };
 
+  const customTooltipFormatter = (value: any, name: any) => {
+    return [formatCurrency(value), 'Cost'];
+  };
+
   const renderLabel = (entry: any) => {
     const percent = ((entry.value / chartData.reduce((sum, item) => sum + item.value, 0)) * 100).toFixed(1);
     return `${percent}%`;
@@ -62,7 +66,7 @@ const CostPieChart: React.FC<CostPieChartProps> = ({ data, groupBy }) => {
             ))}
           </Pie>
           <Tooltip 
-            formatter={[formatCurrency, 'Cost']}
+            formatter={customTooltipFormatter}
             contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc' }}
           />
           <Legend />

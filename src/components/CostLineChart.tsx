@@ -36,6 +36,14 @@ const CostLineChart: React.FC<CostLineChartProps> = ({ data }) => {
     return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
   };
 
+  const customTooltipFormatter = (value: any, name: any) => {
+    return [formatCurrency(value), 'Cost'];
+  };
+
+  const customLabelFormatter = (month: any) => {
+    return `Month: ${formatMonth(month as string)}`;
+  };
+
   return (
     <div className="w-full h-96">
       <ResponsiveContainer width="100%" height="100%">
@@ -55,8 +63,8 @@ const CostLineChart: React.FC<CostLineChartProps> = ({ data }) => {
           />
           <YAxis tickFormatter={formatCurrency} />
           <Tooltip 
-            formatter={[formatCurrency, 'Cost']}
-            labelFormatter={(month) => `Month: ${formatMonth(month as string)}`}
+            formatter={customTooltipFormatter}
+            labelFormatter={customLabelFormatter}
             contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc' }}
           />
           <Legend />
