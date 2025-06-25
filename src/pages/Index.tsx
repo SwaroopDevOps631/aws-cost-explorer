@@ -1,5 +1,4 @@
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,12 +13,19 @@ import CostPieChart from '@/components/CostPieChart';
 import CostLineChart from '@/components/CostLineChart';
 import CsvUploader from '@/components/CsvUploader';
 import ExportButtons from '@/components/ExportButtons';
+import ChartExportButtons from '@/components/ChartExportButtons';
+import SampleDataDownload from '@/components/SampleDataDownload';
 import { sampleData, CostData } from '@/data/sampleData';
 
 const Index = () => {
   const { toast } = useToast();
   const [data, setData] = useState<CostData[]>(sampleData);
   const [groupBy, setGroupBy] = useState<string>('department');
+  
+  // Chart refs for export
+  const barChartRef = useRef<HTMLDivElement>(null);
+  const pieChartRef = useRef<HTMLDivElement>(null);
+  const lineChartRef = useRef<HTMLDivElement>(null);
   
   // Multi-select filter states
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
@@ -75,78 +81,89 @@ const Index = () => {
                           selectedTimeRanges.length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-slate-900 text-white p-6 shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* Header with Excelra branding */}
+      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white p-6 shadow-xl">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-orange-400">AWS Cost Explorer</h1>
-              <p className="text-slate-300 mt-1">Internal Cost Reporting Dashboard</p>
+            <div className="flex items-center gap-4">
+              <img 
+                src="/excelra-logo.png" 
+                alt="Excelra" 
+                className="h-12 w-auto"
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+              />
+              <div>
+                <h1 className="text-3xl font-bold text-white">AWS Cost Explorer</h1>
+                <p className="text-blue-200 mt-1">Powered by Excelra Analytics Platform</p>
+              </div>
             </div>
             <div className="flex items-center gap-4">
-              <Badge variant="secondary" className="bg-orange-500 text-white">
+              <Badge variant="secondary" className="bg-blue-600 text-white border-blue-500">
                 {filteredData.length} records
               </Badge>
               {hasActiveFilters && (
-                <Badge variant="outline" className="border-orange-400 text-orange-400">
+                <Badge variant="outline" className="border-blue-300 text-blue-200">
                   Filtered
                 </Badge>
               )}
-              <CsvUploader onDataUpload={handleDataUpload} />
+              <div className="flex gap-2">
+                <SampleDataDownload />
+                <CsvUploader onDataUpload={handleDataUpload} />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto p-6 space-y-6">
-        {/* Summary Cards */}
+        {/* Summary Cards with Excelra theme */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="border-l-4 border-l-orange-500">
+          <Card className="border-l-4 border-l-blue-600 shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Total Cost</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
                 ${summaryMetrics.totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </CardContent>
           </Card>
           
-          <Card className="border-l-4 border-l-blue-500">
+          <Card className="border-l-4 border-l-indigo-600 shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Departments</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{summaryMetrics.uniqueDepartments}</div>
+              <div className="text-2xl font-bold text-indigo-700">{summaryMetrics.uniqueDepartments}</div>
             </CardContent>
           </Card>
           
-          <Card className="border-l-4 border-l-green-500">
+          <Card className="border-l-4 border-l-cyan-600 shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Projects</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{summaryMetrics.uniqueProjects}</div>
+              <div className="text-2xl font-bold text-cyan-700">{summaryMetrics.uniqueProjects}</div>
             </CardContent>
           </Card>
           
-          <Card className="border-l-4 border-l-purple-500">
+          <Card className="border-l-4 border-l-slate-600 shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600">Services</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{summaryMetrics.uniqueServices}</div>
+              <div className="text-2xl font-bold text-slate-700">{summaryMetrics.uniqueServices}</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Multi-Select Filters */}
-        <Card>
+        <Card className="shadow-lg">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <BarChart className="w-5 h-5 text-orange-500" />
+                <BarChart className="w-5 h-5 text-blue-600" />
                 Multi-Select Filters & Grouping
               </CardTitle>
               <div className="flex items-center gap-2">
@@ -212,7 +229,7 @@ const Index = () => {
                 <select 
                   value={groupBy} 
                   onChange={(e) => setGroupBy(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="department">Department</option>
                   <option value="project">Project</option>
@@ -233,17 +250,17 @@ const Index = () => {
                     </Badge>
                   ))}
                   {selectedProjects.map(project => (
-                    <Badge key={`proj-${project}`} variant="secondary" className="bg-green-100 text-green-800">
+                    <Badge key={`proj-${project}`} variant="secondary" className="bg-indigo-100 text-indigo-800">
                       Project: {project}
                     </Badge>
                   ))}
                   {selectedServices.map(service => (
-                    <Badge key={`svc-${service}`} variant="secondary" className="bg-purple-100 text-purple-800">
+                    <Badge key={`svc-${service}`} variant="secondary" className="bg-cyan-100 text-cyan-800">
                       Service: {service}
                     </Badge>
                   ))}
                   {selectedTimeRanges.map(time => (
-                    <Badge key={`time-${time}`} variant="secondary" className="bg-orange-100 text-orange-800">
+                    <Badge key={`time-${time}`} variant="secondary" className="bg-slate-100 text-slate-800">
                       Time: {time}
                     </Badge>
                   ))}
@@ -253,55 +270,88 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* Charts */}
+        {/* Charts with export functionality */}
         <Tabs defaultValue="bar" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="bar" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-3 bg-blue-50">
+            <TabsTrigger value="bar" className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               <BarChart className="w-4 h-4" />
               Bar Chart
             </TabsTrigger>
-            <TabsTrigger value="pie" className="flex items-center gap-2">
+            <TabsTrigger value="pie" className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               <PieChart className="w-4 h-4" />
               Pie Chart
             </TabsTrigger>
-            <TabsTrigger value="line" className="flex items-center gap-2">
+            <TabsTrigger value="line" className="flex items-center gap-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               <LineChart className="w-4 h-4" />
               Line Chart
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="bar">
-            <Card>
+            <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle>Cost Analysis by {groupBy.charAt(0).toUpperCase() + groupBy.slice(1)}</CardTitle>
-                <p className="text-sm text-gray-600">Showing {filteredData.length} records</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Cost Analysis by {groupBy.charAt(0).toUpperCase() + groupBy.slice(1)}</CardTitle>
+                    <p className="text-sm text-gray-600">Showing {filteredData.length} records</p>
+                  </div>
+                  <ChartExportButtons 
+                    chartRef={barChartRef}
+                    chartTitle={`Cost Analysis by ${groupBy.charAt(0).toUpperCase() + groupBy.slice(1)}`}
+                    chartType="bar"
+                  />
+                </div>
               </CardHeader>
               <CardContent>
-                <CostBarChart data={filteredData} groupBy={groupBy} />
+                <div ref={barChartRef}>
+                  <CostBarChart data={filteredData} groupBy={groupBy} />
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
           
           <TabsContent value="pie">
-            <Card>
+            <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle>Cost Distribution by {groupBy.charAt(0).toUpperCase() + groupBy.slice(1)}</CardTitle>
-                <p className="text-sm text-gray-600">Showing {filteredData.length} records</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Cost Distribution by {groupBy.charAt(0).toUpperCase() + groupBy.slice(1)}</CardTitle>
+                    <p className="text-sm text-gray-600">Showing {filteredData.length} records</p>
+                  </div>
+                  <ChartExportButtons 
+                    chartRef={pieChartRef}
+                    chartTitle={`Cost Distribution by ${groupBy.charAt(0).toUpperCase() + groupBy.slice(1)}`}
+                    chartType="pie"
+                  />
+                </div>
               </CardHeader>
               <CardContent>
-                <CostPieChart data={filteredData} groupBy={groupBy} />
+                <div ref={pieChartRef}>
+                  <CostPieChart data={filteredData} groupBy={groupBy} />
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
           
           <TabsContent value="line">
-            <Card>
+            <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle>Cost Trends Over Time</CardTitle>
-                <p className="text-sm text-gray-600">Showing {filteredData.length} records</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Cost Trends Over Time</CardTitle>
+                    <p className="text-sm text-gray-600">Showing {filteredData.length} records</p>
+                  </div>
+                  <ChartExportButtons 
+                    chartRef={lineChartRef}
+                    chartTitle="Cost Trends Over Time"
+                    chartType="line"
+                  />
+                </div>
               </CardHeader>
               <CardContent>
-                <CostLineChart data={filteredData} />
+                <div ref={lineChartRef}>
+                  <CostLineChart data={filteredData} />
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

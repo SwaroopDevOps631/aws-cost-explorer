@@ -56,24 +56,30 @@ const CostLineChart: React.FC<CostLineChartProps> = ({ data }) => {
             bottom: 20,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
           <XAxis 
             dataKey="month" 
             tickFormatter={formatMonth}
+            stroke="#64748b"
           />
-          <YAxis tickFormatter={formatCurrency} />
+          <YAxis tickFormatter={formatCurrency} stroke="#64748b" />
           <Tooltip 
             formatter={customTooltipFormatter}
             labelFormatter={customLabelFormatter}
-            contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc' }}
+            contentStyle={{ 
+              backgroundColor: 'white', 
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            }}
           />
           <Legend />
           <Line 
             type="monotone" 
             dataKey="cost" 
-            stroke="#f97316" 
+            stroke="#1e40af" 
             strokeWidth={3}
-            dot={{ fill: '#f97316', strokeWidth: 2, r: 6 }}
+            dot={{ fill: '#1e40af', strokeWidth: 2, r: 6 }}
             name="Total Cost (USD)"
           />
         </LineChart>

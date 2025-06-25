@@ -8,9 +8,10 @@ interface CostPieChartProps {
   groupBy: string;
 }
 
+// Excelra-inspired color palette
 const COLORS = [
-  '#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', 
-  '#f59e0b', '#06b6d4', '#84cc16', '#ec4899', '#6366f1'
+  '#1e40af', '#3b82f6', '#1e3a8a', '#2563eb', '#1d4ed8', 
+  '#1e3a8a', '#3730a3', '#4338ca', '#4f46e5', '#6366f1'
 ];
 
 const CostPieChart: React.FC<CostPieChartProps> = ({ data, groupBy }) => {
@@ -67,7 +68,12 @@ const CostPieChart: React.FC<CostPieChartProps> = ({ data, groupBy }) => {
           </Pie>
           <Tooltip 
             formatter={customTooltipFormatter}
-            contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc' }}
+            contentStyle={{ 
+              backgroundColor: 'white', 
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            }}
           />
           <Legend />
         </PieChart>

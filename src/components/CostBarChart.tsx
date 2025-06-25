@@ -50,22 +50,39 @@ const CostBarChart: React.FC<CostBarChartProps> = ({ data, groupBy }) => {
             bottom: 60,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
           <XAxis 
             dataKey="name" 
             angle={-45}
             textAnchor="end"
             height={80}
             fontSize={12}
+            stroke="#64748b"
           />
-          <YAxis tickFormatter={formatCurrency} />
+          <YAxis tickFormatter={formatCurrency} stroke="#64748b" />
           <Tooltip 
             formatter={customTooltipFormatter}
-            labelStyle={{ color: '#333' }}
-            contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc' }}
+            labelStyle={{ color: '#1e293b' }}
+            contentStyle={{ 
+              backgroundColor: 'white', 
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            }}
           />
           <Legend />
-          <Bar dataKey="cost" fill="#f97316" name="Cost (USD)" />
+          <Bar 
+            dataKey="cost" 
+            fill="url(#blueGradient)" 
+            name="Cost (USD)"
+            radius={[4, 4, 0, 0]}
+          />
+          <defs>
+            <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#1e40af" />
+              <stop offset="100%" stopColor="#3b82f6" />
+            </linearGradient>
+          </defs>
         </BarChart>
       </ResponsiveContainer>
     </div>

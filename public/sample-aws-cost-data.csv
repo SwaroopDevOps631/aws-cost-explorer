@@ -1,0 +1,38 @@
+
+month,department,project,service,cost
+2024-01,Engineering,Web Platform,EC2,2450.75
+2024-01,Engineering,Web Platform,S3,180.25
+2024-01,Engineering,Web Platform,Lambda,95.50
+2024-01,Engineering,Mobile App,EC2,1890.30
+2024-01,Engineering,Mobile App,RDS,420.80
+2024-01,DevOps,Infrastructure,EC2,3200.45
+2024-01,DevOps,Infrastructure,CloudWatch,150.75
+2024-01,DevOps,CI/CD Pipeline,EC2,890.20
+2024-01,DevOps,CI/CD Pipeline,S3,75.40
+2024-01,Data Science,Analytics,EC2,1650.90
+2024-01,Data Science,Analytics,Redshift,980.65
+2024-01,Data Science,ML Models,SageMaker,1250.30
+2024-02,Engineering,Web Platform,EC2,2680.90
+2024-02,Engineering,Web Platform,S3,195.40
+2024-02,Engineering,Web Platform,Lambda,110.75
+2024-02,Engineering,Mobile App,EC2,2100.50
+2024-02,Engineering,Mobile App,RDS,465.25
+2024-02,DevOps,Infrastructure,EC2,3450.80
+2024-02,DevOps,Infrastructure,CloudWatch,165.90
+2024-02,DevOps,CI/CD Pipeline,EC2,920.35
+2024-02,DevOps,CI/CD Pipeline,S3,82.15
+2024-02,Data Science,Analytics,EC2,1780.40
+2024-02,Data Science,Analytics,Redshift,1080.75
+2024-02,Data Science,ML Models,SageMaker,1390.60
+2024-03,Engineering,Web Platform,EC2,2580.65
+2024-03,Engineering,Web Platform,S3,205.80
+2024-03,Engineering,Web Platform,Lambda,125.90
+2024-03,Engineering,Mobile App,EC2,2250.75
+2024-03,Engineering,Mobile App,RDS,485.40
+2024-03,DevOps,Infrastructure,EC2,3650.20
+2024-03,DevOps,Infrastructure,CloudWatch,175.25
+2024-03,DevOps,CI/CD Pipeline,EC2,980.60
+2024-03,DevOps,CI/CD Pipeline,S3,88.30
+2024-03,Data Science,Analytics,EC2,1920.85
+2024-03,Data Science,Analytics,Redshift,1180.90
+2024-03,Data Science,ML Models,SageMaker,1480.45
