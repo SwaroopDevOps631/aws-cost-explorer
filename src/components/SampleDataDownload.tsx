@@ -20,7 +20,11 @@ const SampleDataDownload: React.FC = () => {
   };
 
   return (
-    <Button variant="outline" size="sm" onClick={downloadSampleData}>
+    <Button 
+      onClick={downloadSampleData}
+      className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-0 shadow-lg transition-all duration-300 hover:shadow-xl"
+      size="sm"
+    >
       <Download className="w-4 h-4 mr-2" />
       Download Sample Data
     </Button>
