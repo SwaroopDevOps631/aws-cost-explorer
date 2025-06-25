@@ -1,14 +1,14 @@
 
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { BarChart, PieChart, LineChart, Download, Upload, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { MultiSelect, Option } from '@/components/ui/multi-select';
+import { useFilteredData, useUniqueValues } from '@/hooks/useFilteredData';
 import CostBarChart from '@/components/CostBarChart';
 import CostPieChart from '@/components/CostPieChart';
 import CostLineChart from '@/components/CostLineChart';
@@ -19,45 +19,39 @@ import { sampleData, CostData } from '@/data/sampleData';
 const Index = () => {
   const { toast } = useToast();
   const [data, setData] = useState<CostData[]>(sampleData);
-  const [selectedDepartment, setSelectedDepartment] = useState<string>('all');
-  const [selectedProject, setSelectedProject] = useState<string>('all');
-  const [selectedService, setSelectedService] = useState<string>('all');
-  const [selectedTimeRange, setSelectedTimeRange] = useState<string>('all');
   const [groupBy, setGroupBy] = useState<string>('department');
+  
+  // Multi-select filter states
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedTimeRanges, setSelectedTimeRanges] = useState<string[]>([]);
 
-  // Extract unique values for filters
-  const departments = useMemo(() => [...new Set(data.map(item => item.department))], [data]);
-  const projects = useMemo(() => [...new Set(data.map(item => item.project))], [data]);
-  const services = useMemo(() => [...new Set(data.map(item => item.service))], [data]);
-  const months = useMemo(() => [...new Set(data.map(item => item.month))].sort(), [data]);
+  // Get unique values using optimized hook
+  const { departments, projects, services, months } = useUniqueValues(data);
 
-  // Filter data based on selections
-  const filteredData = useMemo(() => {
-    return data.filter(item => {
-      const departmentMatch = selectedDepartment === 'all' || item.department === selectedDepartment;
-      const projectMatch = selectedProject === 'all' || item.project === selectedProject;
-      const serviceMatch = selectedService === 'all' || item.service === selectedService;
-      const timeMatch = selectedTimeRange === 'all' || item.month === selectedTimeRange;
-      
-      return departmentMatch && projectMatch && serviceMatch && timeMatch;
-    });
-  }, [data, selectedDepartment, selectedProject, selectedService, selectedTimeRange]);
+  // Filter data using optimized hook
+  const filteredData = useFilteredData(data, {
+    departments: selectedDepartments,
+    projects: selectedProjects,
+    services: selectedServices,
+    timeRanges: selectedTimeRanges
+  });
+
+  // Convert arrays to options for MultiSelect
+  const departmentOptions: Option[] = departments.map(dept => ({ label: dept, value: dept }));
+  const projectOptions: Option[] = projects.map(project => ({ label: project, value: project }));
+  const serviceOptions: Option[] = services.map(service => ({ label: service, value: service }));
+  const timeRangeOptions: Option[] = months.map(month => ({ label: month, value: month }));
 
   // Calculate summary metrics
-  const totalCost = useMemo(() => {
-    return filteredData.reduce((sum, item) => sum + item.cost, 0);
-  }, [filteredData]);
-
-  const uniqueDepartments = useMemo(() => {
-    return new Set(filteredData.map(item => item.department)).size;
-  }, [filteredData]);
-
-  const uniqueProjects = useMemo(() => {
-    return new Set(filteredData.map(item => item.project)).size;
-  }, [filteredData]);
-
-  const uniqueServices = useMemo(() => {
-    return new Set(filteredData.map(item => item.service)).size;
+  const summaryMetrics = useMemo(() => {
+    const totalCost = filteredData.reduce((sum, item) => sum + item.cost, 0);
+    const uniqueDepartments = new Set(filteredData.map(item => item.department)).size;
+    const uniqueProjects = new Set(filteredData.map(item => item.project)).size;
+    const uniqueServices = new Set(filteredData.map(item => item.service)).size;
+    
+    return { totalCost, uniqueDepartments, uniqueProjects, uniqueServices };
   }, [filteredData]);
 
   const handleDataUpload = (newData: CostData[]) => {
@@ -69,11 +63,16 @@ const Index = () => {
   };
 
   const resetFilters = () => {
-    setSelectedDepartment('all');
-    setSelectedProject('all');
-    setSelectedService('all');
-    setSelectedTimeRange('all');
+    setSelectedDepartments([]);
+    setSelectedProjects([]);
+    setSelectedServices([]);
+    setSelectedTimeRanges([]);
   };
+
+  const hasActiveFilters = selectedDepartments.length > 0 || 
+                          selectedProjects.length > 0 || 
+                          selectedServices.length > 0 || 
+                          selectedTimeRanges.length > 0;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -89,6 +88,11 @@ const Index = () => {
               <Badge variant="secondary" className="bg-orange-500 text-white">
                 {filteredData.length} records
               </Badge>
+              {hasActiveFilters && (
+                <Badge variant="outline" className="border-orange-400 text-orange-400">
+                  Filtered
+                </Badge>
+              )}
               <CsvUploader onDataUpload={handleDataUpload} />
             </div>
           </div>
@@ -104,7 +108,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-gray-900">
-                ${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                ${summaryMetrics.totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
             </CardContent>
           </Card>
@@ -114,7 +118,7 @@ const Index = () => {
               <CardTitle className="text-sm font-medium text-gray-600">Departments</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{uniqueDepartments}</div>
+              <div className="text-2xl font-bold text-gray-900">{summaryMetrics.uniqueDepartments}</div>
             </CardContent>
           </Card>
           
@@ -123,7 +127,7 @@ const Index = () => {
               <CardTitle className="text-sm font-medium text-gray-600">Projects</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{uniqueProjects}</div>
+              <div className="text-2xl font-bold text-gray-900">{summaryMetrics.uniqueProjects}</div>
             </CardContent>
           </Card>
           
@@ -132,109 +136,120 @@ const Index = () => {
               <CardTitle className="text-sm font-medium text-gray-600">Services</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{uniqueServices}</div>
+              <div className="text-2xl font-bold text-gray-900">{summaryMetrics.uniqueServices}</div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Filters */}
+        {/* Multi-Select Filters */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <BarChart className="w-5 h-5 text-orange-500" />
-                Filters & Grouping
+                Multi-Select Filters & Grouping
               </CardTitle>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={resetFilters}>
+                <Button variant="outline" size="sm" onClick={resetFilters} disabled={!hasActiveFilters}>
                   Reset Filters
                 </Button>
-                <ExportButtons data={filteredData} filters={{
-                  department: selectedDepartment,
-                  project: selectedProject,
-                  service: selectedService,
-                  timeRange: selectedTimeRange
-                }} />
+                <ExportButtons 
+                  data={filteredData} 
+                  filters={{
+                    departments: selectedDepartments,
+                    projects: selectedProjects,
+                    services: selectedServices,
+                    timeRanges: selectedTimeRanges
+                  }} 
+                />
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-              <div>
-                <Label htmlFor="department">Department</Label>
-                <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                  <SelectTrigger id="department">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white z-50">
-                    <SelectItem value="all">All Departments</SelectItem>
-                    {departments.map(dept => (
-                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <div className="space-y-2">
+                <Label>Departments ({selectedDepartments.length})</Label>
+                <MultiSelect
+                  options={departmentOptions}
+                  selected={selectedDepartments}
+                  onChange={setSelectedDepartments}
+                  placeholder="Select departments..."
+                />
               </div>
               
-              <div>
-                <Label htmlFor="project">Project</Label>
-                <Select value={selectedProject} onValueChange={setSelectedProject}>
-                  <SelectTrigger id="project">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white z-50">
-                    <SelectItem value="all">All Projects</SelectItem>
-                    {projects.map(project => (
-                      <SelectItem key={project} value={project}>{project}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="space-y-2">
+                <Label>Projects ({selectedProjects.length})</Label>
+                <MultiSelect
+                  options={projectOptions}
+                  selected={selectedProjects}
+                  onChange={setSelectedProjects}
+                  placeholder="Select projects..."
+                />
               </div>
               
-              <div>
-                <Label htmlFor="service">Service</Label>
-                <Select value={selectedService} onValueChange={setSelectedService}>
-                  <SelectTrigger id="service">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white z-50">
-                    <SelectItem value="all">All Services</SelectItem>
-                    {services.map(service => (
-                      <SelectItem key={service} value={service}>{service}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="space-y-2">
+                <Label>Services ({selectedServices.length})</Label>
+                <MultiSelect
+                  options={serviceOptions}
+                  selected={selectedServices}
+                  onChange={setSelectedServices}
+                  placeholder="Select services..."
+                />
               </div>
               
-              <div>
-                <Label htmlFor="timerange">Time Range</Label>
-                <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
-                  <SelectTrigger id="timerange">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white z-50">
-                    <SelectItem value="all">All Months</SelectItem>
-                    {months.map(month => (
-                      <SelectItem key={month} value={month}>{month}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="space-y-2">
+                <Label>Time Ranges ({selectedTimeRanges.length})</Label>
+                <MultiSelect
+                  options={timeRangeOptions}
+                  selected={selectedTimeRanges}
+                  onChange={setSelectedTimeRanges}
+                  placeholder="Select months..."
+                />
               </div>
               
-              <div>
-                <Label htmlFor="groupby">Group By</Label>
-                <Select value={groupBy} onValueChange={setGroupBy}>
-                  <SelectTrigger id="groupby">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white z-50">
-                    <SelectItem value="department">Department</SelectItem>
-                    <SelectItem value="project">Project</SelectItem>
-                    <SelectItem value="service">Service</SelectItem>
-                    <SelectItem value="month">Month</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="space-y-2">
+                <Label>Group By</Label>
+                <select 
+                  value={groupBy} 
+                  onChange={(e) => setGroupBy(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="department">Department</option>
+                  <option value="project">Project</option>
+                  <option value="service">Service</option>
+                  <option value="month">Month</option>
+                </select>
               </div>
             </div>
+            
+            {/* Active Filters Display */}
+            {hasActiveFilters && (
+              <div className="mt-4 pt-4 border-t">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <span className="text-sm font-medium text-gray-600">Active Filters:</span>
+                  {selectedDepartments.map(dept => (
+                    <Badge key={`dept-${dept}`} variant="secondary" className="bg-blue-100 text-blue-800">
+                      Dept: {dept}
+                    </Badge>
+                  ))}
+                  {selectedProjects.map(project => (
+                    <Badge key={`proj-${project}`} variant="secondary" className="bg-green-100 text-green-800">
+                      Project: {project}
+                    </Badge>
+                  ))}
+                  {selectedServices.map(service => (
+                    <Badge key={`svc-${service}`} variant="secondary" className="bg-purple-100 text-purple-800">
+                      Service: {service}
+                    </Badge>
+                  ))}
+                  {selectedTimeRanges.map(time => (
+                    <Badge key={`time-${time}`} variant="secondary" className="bg-orange-100 text-orange-800">
+                      Time: {time}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -259,6 +274,7 @@ const Index = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Cost Analysis by {groupBy.charAt(0).toUpperCase() + groupBy.slice(1)}</CardTitle>
+                <p className="text-sm text-gray-600">Showing {filteredData.length} records</p>
               </CardHeader>
               <CardContent>
                 <CostBarChart data={filteredData} groupBy={groupBy} />
@@ -270,6 +286,7 @@ const Index = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Cost Distribution by {groupBy.charAt(0).toUpperCase() + groupBy.slice(1)}</CardTitle>
+                <p className="text-sm text-gray-600">Showing {filteredData.length} records</p>
               </CardHeader>
               <CardContent>
                 <CostPieChart data={filteredData} groupBy={groupBy} />
@@ -281,6 +298,7 @@ const Index = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Cost Trends Over Time</CardTitle>
+                <p className="text-sm text-gray-600">Showing {filteredData.length} records</p>
               </CardHeader>
               <CardContent>
                 <CostLineChart data={filteredData} />
