@@ -77,9 +77,9 @@ const CostLineChart: React.FC<CostLineChartProps> = ({ data }) => {
           <Line 
             type="monotone" 
             dataKey="cost" 
-            stroke="#1e40af" 
+            stroke="#8b5cf6" 
             strokeWidth={3}
-            dot={{ fill: '#1e40af', strokeWidth: 2, r: 6 }}
+            dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 6 }}
             name="Total Cost (USD)"
           />
         </LineChart>

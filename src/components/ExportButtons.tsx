@@ -169,11 +169,21 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ data, filters }) => {
 
   return (
     <div className="flex items-center gap-2">
-      <Button variant="outline" size="sm" onClick={exportToCSV}>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={exportToCSV}
+        className="border-purple-200 text-purple-700 hover:bg-purple-50"
+      >
         <Download className="w-4 h-4 mr-2" />
         Export CSV
       </Button>
-      <Button variant="outline" size="sm" onClick={exportToPDF}>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={exportToPDF}
+        className="border-purple-200 text-purple-700 hover:bg-purple-50"
+      >
         <FileText className="w-4 h-4 mr-2" />
         Export PDF
       </Button>

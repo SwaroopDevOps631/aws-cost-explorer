@@ -8,10 +8,10 @@ interface CostPieChartProps {
   groupBy: string;
 }
 
-// Excelra-inspired color palette
+// Purple-to-blue gradient color palette
 const COLORS = [
-  '#1e40af', '#3b82f6', '#1e3a8a', '#2563eb', '#1d4ed8', 
-  '#1e3a8a', '#3730a3', '#4338ca', '#4f46e5', '#6366f1'
+  '#8b5cf6', '#7c3aed', '#6d28d9', '#5b21b6', '#4c1d95',
+  '#3b82f6', '#2563eb', '#1d4ed8', '#1e40af', '#1e3a8a'
 ];
 
 const CostPieChart: React.FC<CostPieChartProps> = ({ data, groupBy }) => {

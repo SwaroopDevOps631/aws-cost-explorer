@@ -178,11 +178,21 @@ const ChartExportButtons: React.FC<ChartExportButtonsProps> = ({
 
   return (
     <div className="flex items-center gap-2">
-      <Button variant="outline" size="sm" onClick={exportToPNG}>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={exportToPNG}
+        className="border-purple-200 text-purple-700 hover:bg-purple-50"
+      >
         <FileImage className="w-4 h-4 mr-2" />
         PNG
       </Button>
-      <Button variant="outline" size="sm" onClick={exportChartToPDF}>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        onClick={exportChartToPDF}
+        className="border-purple-200 text-purple-700 hover:bg-purple-50"
+      >
         <FileText className="w-4 h-4 mr-2" />
         PDF
       </Button>

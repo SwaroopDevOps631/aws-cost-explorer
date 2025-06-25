@@ -73,13 +73,13 @@ const CostBarChart: React.FC<CostBarChartProps> = ({ data, groupBy }) => {
           <Legend />
           <Bar 
             dataKey="cost" 
-            fill="url(#blueGradient)" 
+            fill="url(#purpleBlueGradient)" 
             name="Cost (USD)"
             radius={[4, 4, 0, 0]}
           />
           <defs>
-            <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#1e40af" />
+            <linearGradient id="purpleBlueGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#8b5cf6" />
               <stop offset="100%" stopColor="#3b82f6" />
             </linearGradient>
           </defs>
