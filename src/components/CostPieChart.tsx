@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { CostData } from '@/data/sampleData';
@@ -7,9 +6,10 @@ import { generateColorPalette } from '@/utils/colorUtils';
 interface CostPieChartProps {
   data: CostData[];
   groupBy: string;
+  onSegmentClick?: (name: string, value: number) => void;
 }
 
-const CostPieChart: React.FC<CostPieChartProps> = ({ data, groupBy }) => {
+const CostPieChart: React.FC<CostPieChartProps> = ({ data, groupBy, onSegmentClick }) => {
   const processData = () => {
     const grouped = data.reduce((acc, item) => {
       const key = item[groupBy as keyof CostData] as string;
@@ -46,6 +46,12 @@ const CostPieChart: React.FC<CostPieChartProps> = ({ data, groupBy }) => {
     return `${percent}%`;
   };
 
+  const handleSegmentClick = (data: any) => {
+    if (onSegmentClick && data && data.name) {
+      onSegmentClick(data.name, data.value);
+    }
+  };
+
   return (
     <div className="w-full h-96">
       <ResponsiveContainer width="100%" height="100%">
@@ -59,6 +65,8 @@ const CostPieChart: React.FC<CostPieChartProps> = ({ data, groupBy }) => {
             outerRadius={120}
             fill="#8884d8"
             dataKey="value"
+            onClick={handleSegmentClick}
+            style={{ cursor: onSegmentClick ? 'pointer' : 'default' }}
           >
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={colors[index]} />

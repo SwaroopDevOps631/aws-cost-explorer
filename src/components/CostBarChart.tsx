@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
 import { CostData } from '@/data/sampleData';
@@ -7,9 +6,10 @@ import { generateColorPalette } from '@/utils/colorUtils';
 interface CostBarChartProps {
   data: CostData[];
   groupBy: string;
+  onBarClick?: (name: string, value: number) => void;
 }
 
-const CostBarChart: React.FC<CostBarChartProps> = ({ data, groupBy }) => {
+const CostBarChart: React.FC<CostBarChartProps> = ({ data, groupBy, onBarClick }) => {
   const processData = () => {
     const grouped = data.reduce((acc, item) => {
       const key = item[groupBy as keyof CostData] as string;
@@ -42,6 +42,12 @@ const CostBarChart: React.FC<CostBarChartProps> = ({ data, groupBy }) => {
     return [formatCurrency(value), 'Cost'];
   };
 
+  const handleBarClick = (data: any) => {
+    if (onBarClick && data && data.name) {
+      onBarClick(data.name, data.cost);
+    }
+  };
+
   return (
     <div className="w-full h-96">
       <ResponsiveContainer width="100%" height="100%">
@@ -53,6 +59,7 @@ const CostBarChart: React.FC<CostBarChartProps> = ({ data, groupBy }) => {
             left: 20,
             bottom: 60,
           }}
+          onClick={handleBarClick}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
           <XAxis 
@@ -79,6 +86,7 @@ const CostBarChart: React.FC<CostBarChartProps> = ({ data, groupBy }) => {
             dataKey="cost" 
             name="Cost (USD)"
             radius={[4, 4, 0, 0]}
+            style={{ cursor: onBarClick ? 'pointer' : 'default' }}
           >
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={colors[index]} />

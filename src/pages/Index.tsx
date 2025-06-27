@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +16,10 @@ import ExportButtons from '@/components/ExportButtons';
 import ChartExportButtons from '@/components/ChartExportButtons';
 import SampleDataDownload from '@/components/SampleDataDownload';
 import { sampleData, CostData } from '@/data/sampleData';
+import TopNReports from '@/components/TopNReports';
+import SmartInsights from '@/components/SmartInsights';
+import DrillDownModal from '@/components/DrillDownModal';
+import HistoricalComparison from '@/components/HistoricalComparison';
 
 const Index = () => {
   const { toast } = useToast();
@@ -40,6 +43,13 @@ const Index = () => {
   const [selectedProjectNames, setSelectedProjectNames] = useState<string[]>([]);
   const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
   const [selectedAwsAccounts, setSelectedAwsAccounts] = useState<string[]>([]);
+
+  // Add drill-down modal state
+  const [drillDownData, setDrillDownData] = useState<{
+    name: string;
+    value: number;
+    data: CostData[];
+  } | null>(null);
 
   // Get unique values using optimized hook
   const { departments, projects, services, months, names, categories, projectNames, owners, awsAccounts } = useUniqueValues(data);
@@ -109,6 +119,15 @@ const Index = () => {
                           selectedProjectNames.length > 0 ||
                           selectedOwners.length > 0 ||
                           selectedAwsAccounts.length > 0;
+
+  const handleChartClick = (name: string, value: number) => {
+    const relatedData = filteredData.filter(item => {
+      const key = item[groupBy as keyof CostData] as string;
+      return key === name;
+    });
+    
+    setDrillDownData({ name, value, data: relatedData });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -392,6 +411,15 @@ const Index = () => {
           </CardContent>
         </Card>
 
+        {/* New Analytics Section */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <TopNReports data={filteredData} />
+          <SmartInsights data={filteredData} />
+        </div>
+
+        {/* Historical Comparison */}
+        <HistoricalComparison data={filteredData} />
+
         {/* Charts with export functionality */}
         <Tabs defaultValue="bar" className="space-y-4">
           <TabsList className="grid w-full grid-cols-3 bg-blue-50">
@@ -415,7 +443,7 @@ const Index = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Cost Analysis by {groupBy.charAt(0).toUpperCase() + groupBy.slice(1)}</CardTitle>
-                    <p className="text-sm text-gray-600">Showing {filteredData.length} records</p>
+                    <p className="text-sm text-gray-600">Showing {filteredData.length} records • Click bars for drill-down</p>
                   </div>
                   <ChartExportButtons 
                     chartRef={barChartRef}
@@ -426,7 +454,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <div ref={barChartRef}>
-                  <CostBarChart data={filteredData} groupBy={groupBy} />
+                  <CostBarChart data={filteredData} groupBy={groupBy} onBarClick={handleChartClick} />
                 </div>
               </CardContent>
             </Card>
@@ -438,7 +466,7 @@ const Index = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>Cost Distribution by {groupBy.charAt(0).toUpperCase() + groupBy.slice(1)}</CardTitle>
-                    <p className="text-sm text-gray-600">Showing {filteredData.length} records</p>
+                    <p className="text-sm text-gray-600">Showing {filteredData.length} records • Click segments for drill-down</p>
                   </div>
                   <ChartExportButtons 
                     chartRef={pieChartRef}
@@ -449,7 +477,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <div ref={pieChartRef}>
-                  <CostPieChart data={filteredData} groupBy={groupBy} />
+                  <CostPieChart data={filteredData} groupBy={groupBy} onSegmentClick={handleChartClick} />
                 </div>
               </CardContent>
             </Card>
@@ -478,6 +506,13 @@ const Index = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Drill-Down Modal */}
+        <DrillDownModal
+          isOpen={!!drillDownData}
+          onClose={() => setDrillDownData(null)}
+          selectedData={drillDownData}
+        />
       </div>
     </div>
   );
