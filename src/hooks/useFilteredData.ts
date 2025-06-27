@@ -12,6 +12,7 @@ interface FilterState {
   categories: string[];
   projectNames: string[];
   owners: string[];
+  awsAccounts: string[];
 }
 
 export const useFilteredData = (data: CostData[], filters: FilterState) => {
@@ -30,7 +31,8 @@ export const useFilteredData = (data: CostData[], filters: FilterState) => {
       filters.names.length > 0 ||
       filters.categories.length > 0 ||
       filters.projectNames.length > 0 ||
-      filters.owners.length > 0;
+      filters.owners.length > 0 ||
+      filters.awsAccounts.length > 0;
     
     if (!hasAnyFilters) return data;
     
@@ -45,12 +47,13 @@ export const useFilteredData = (data: CostData[], filters: FilterState) => {
       const categoryMatch = filters.categories.length === 0 || (item.category && filters.categories.includes(item.category));
       const projectNameMatch = filters.projectNames.length === 0 || (item.projectName && filters.projectNames.includes(item.projectName));
       const ownerMatch = filters.owners.length === 0 || (item.owner && filters.owners.includes(item.owner));
+      const awsAccountMatch = filters.awsAccounts.length === 0 || (item.awsAccount && filters.awsAccounts.includes(item.awsAccount));
       
       return departmentMatch && projectMatch && serviceMatch && timeMatch && 
-             nameMatch && categoryMatch && projectNameMatch && ownerMatch;
+             nameMatch && categoryMatch && projectNameMatch && ownerMatch && awsAccountMatch;
     });
   }, [data, filters.departments, filters.projects, filters.services, filters.timeRanges, 
-      filters.names, filters.categories, filters.projectNames, filters.owners]);
+      filters.names, filters.categories, filters.projectNames, filters.owners, filters.awsAccounts]);
 };
 
 export const useUniqueValues = (data: CostData[]) => {
@@ -67,7 +70,8 @@ export const useUniqueValues = (data: CostData[]) => {
     const categories = [...new Set(data.map(item => item.category).filter(Boolean))].sort();
     const projectNames = [...new Set(data.map(item => item.projectName).filter(Boolean))].sort();
     const owners = [...new Set(data.map(item => item.owner).filter(Boolean))].sort();
+    const awsAccounts = [...new Set(data.map(item => item.awsAccount).filter(Boolean))].sort();
     
-    return { departments, projects, services, months, names, categories, projectNames, owners };
+    return { departments, projects, services, months, names, categories, projectNames, owners, awsAccounts };
   }, [data]);
 };

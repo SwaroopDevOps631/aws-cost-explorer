@@ -40,6 +40,7 @@ const CsvUploader: React.FC<CsvUploaderProps> = ({ onDataUpload }) => {
     const categoryIndex = headers.findIndex(h => h.includes('category') && !h.includes('service'));
     const projectNameIndex = headers.findIndex(h => h.includes('project') && h.includes('name'));
     const ownerIndex = headers.findIndex(h => h.includes('owner'));
+    const awsAccountIndex = headers.findIndex(h => h.includes('aws') && h.includes('account'));
     
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split(',').map(v => v.trim());
@@ -61,6 +62,7 @@ const CsvUploader: React.FC<CsvUploaderProps> = ({ onDataUpload }) => {
         if (categoryIndex !== -1 && values[categoryIndex]) item.category = values[categoryIndex];
         if (projectNameIndex !== -1 && values[projectNameIndex]) item.projectName = values[projectNameIndex];
         if (ownerIndex !== -1 && values[ownerIndex]) item.owner = values[ownerIndex];
+        if (awsAccountIndex !== -1 && values[awsAccountIndex]) item.awsAccount = values[awsAccountIndex];
         
         data.push(item);
       }

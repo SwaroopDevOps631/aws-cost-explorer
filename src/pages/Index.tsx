@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,9 +39,10 @@ const Index = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedProjectNames, setSelectedProjectNames] = useState<string[]>([]);
   const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
+  const [selectedAwsAccounts, setSelectedAwsAccounts] = useState<string[]>([]);
 
   // Get unique values using optimized hook
-  const { departments, projects, services, months, names, categories, projectNames, owners } = useUniqueValues(data);
+  const { departments, projects, services, months, names, categories, projectNames, owners, awsAccounts } = useUniqueValues(data);
 
   // Filter data using optimized hook
   const filteredData = useFilteredData(data, {
@@ -51,7 +53,8 @@ const Index = () => {
     names: selectedNames,
     categories: selectedCategories,
     projectNames: selectedProjectNames,
-    owners: selectedOwners
+    owners: selectedOwners,
+    awsAccounts: selectedAwsAccounts
   });
 
   // Convert arrays to options for MultiSelect
@@ -65,6 +68,7 @@ const Index = () => {
   const categoryOptions: Option[] = categories.map(category => ({ label: category, value: category }));
   const projectNameOptions: Option[] = projectNames.map(projectName => ({ label: projectName, value: projectName }));
   const ownerOptions: Option[] = owners.map(owner => ({ label: owner, value: owner }));
+  const awsAccountOptions: Option[] = awsAccounts.map(account => ({ label: account, value: account }));
 
   // Calculate summary metrics
   const summaryMetrics = useMemo(() => {
@@ -93,6 +97,7 @@ const Index = () => {
     setSelectedCategories([]);
     setSelectedProjectNames([]);
     setSelectedOwners([]);
+    setSelectedAwsAccounts([]);
   };
 
   const hasActiveFilters = selectedDepartments.length > 0 || 
@@ -102,7 +107,8 @@ const Index = () => {
                           selectedNames.length > 0 ||
                           selectedCategories.length > 0 ||
                           selectedProjectNames.length > 0 ||
-                          selectedOwners.length > 0;
+                          selectedOwners.length > 0 ||
+                          selectedAwsAccounts.length > 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -298,6 +304,18 @@ const Index = () => {
                 </div>
               )}
               
+              {awsAccounts.length > 0 && (
+                <div className="space-y-2">
+                  <Label>AWS Account ({selectedAwsAccounts.length})</Label>
+                  <MultiSelect
+                    options={awsAccountOptions}
+                    selected={selectedAwsAccounts}
+                    onChange={setSelectedAwsAccounts}
+                    placeholder="Select AWS accounts..."
+                  />
+                </div>
+              )}
+              
               <div className="space-y-2">
                 <Label>Group By</Label>
                 <select 
@@ -313,6 +331,7 @@ const Index = () => {
                   <option value="category">Category</option>
                   <option value="projectName">Project Name</option>
                   <option value="owner">Owner</option>
+                  <option value="awsAccount">AWS Account</option>
                 </select>
               </div>
             </div>
@@ -360,6 +379,11 @@ const Index = () => {
                   {selectedOwners.map(owner => (
                     <Badge key={`owner-${owner}`} variant="secondary" className="bg-green-100 text-green-800">
                       Owner: {owner}
+                    </Badge>
+                  ))}
+                  {selectedAwsAccounts.map(account => (
+                    <Badge key={`aws-${account}`} variant="secondary" className="bg-yellow-100 text-yellow-800">
+                      AWS: {account}
                     </Badge>
                   ))}
                 </div>
