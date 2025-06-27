@@ -2,6 +2,7 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { CostData } from '@/data/sampleData';
+import { generateGradientColor } from '@/utils/colorUtils';
 
 interface CostLineChartProps {
   data: CostData[];
@@ -26,6 +27,9 @@ const CostLineChart: React.FC<CostLineChartProps> = ({ data }) => {
   };
 
   const chartData = processData();
+  
+  // Generate dynamic color for the line based on data
+  const lineColor = generateGradientColor('total-cost-line');
 
   const formatCurrency = (value: number) => {
     return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
@@ -77,9 +81,9 @@ const CostLineChart: React.FC<CostLineChartProps> = ({ data }) => {
           <Line 
             type="monotone" 
             dataKey="cost" 
-            stroke="#8b5cf6" 
+            stroke={lineColor} 
             strokeWidth={3}
-            dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 6 }}
+            dot={{ fill: lineColor, strokeWidth: 2, r: 6 }}
             name="Total Cost (USD)"
           />
         </LineChart>

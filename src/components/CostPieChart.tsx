@@ -2,17 +2,12 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { CostData } from '@/data/sampleData';
+import { generateColorPalette } from '@/utils/colorUtils';
 
 interface CostPieChartProps {
   data: CostData[];
   groupBy: string;
 }
-
-// Purple-to-blue gradient color palette
-const COLORS = [
-  '#8b5cf6', '#7c3aed', '#6d28d9', '#5b21b6', '#4c1d95',
-  '#3b82f6', '#2563eb', '#1d4ed8', '#1e40af', '#1e3a8a'
-];
 
 const CostPieChart: React.FC<CostPieChartProps> = ({ data, groupBy }) => {
   const processData = () => {
@@ -34,6 +29,9 @@ const CostPieChart: React.FC<CostPieChartProps> = ({ data, groupBy }) => {
   };
 
   const chartData = processData();
+  
+  // Generate dynamic colors based on the data items
+  const colors = generateColorPalette(chartData.map(item => item.name));
 
   const formatCurrency = (value: number) => {
     return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
@@ -63,7 +61,7 @@ const CostPieChart: React.FC<CostPieChartProps> = ({ data, groupBy }) => {
             dataKey="value"
           >
             {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell key={`cell-${index}`} fill={colors[index]} />
             ))}
           </Pie>
           <Tooltip 

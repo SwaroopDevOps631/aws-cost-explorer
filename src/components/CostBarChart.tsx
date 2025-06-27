@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
 import { CostData } from '@/data/sampleData';
+import { generateColorPalette } from '@/utils/colorUtils';
 
 interface CostBarChartProps {
   data: CostData[];
@@ -29,6 +30,9 @@ const CostBarChart: React.FC<CostBarChartProps> = ({ data, groupBy }) => {
   };
 
   const chartData = processData();
+  
+  // Generate dynamic colors based on the data items
+  const colors = generateColorPalette(chartData.map(item => item.name));
 
   const formatCurrency = (value: number) => {
     return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
@@ -73,16 +77,13 @@ const CostBarChart: React.FC<CostBarChartProps> = ({ data, groupBy }) => {
           <Legend />
           <Bar 
             dataKey="cost" 
-            fill="url(#purpleBlueGradient)" 
             name="Cost (USD)"
             radius={[4, 4, 0, 0]}
-          />
-          <defs>
-            <linearGradient id="purpleBlueGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#8b5cf6" />
-              <stop offset="100%" stopColor="#3b82f6" />
-            </linearGradient>
-          </defs>
+          >
+            {chartData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={colors[index]} />
+            ))}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>
