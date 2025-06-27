@@ -16,7 +16,7 @@ const CsvUploader: React.FC<CsvUploaderProps> = ({ onDataUpload }) => {
     const lines = text.trim().split('\n');
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
     
-    // Validate headers
+    // Validate headers - only require the original required headers
     const requiredHeaders = ['month', 'department', 'project', 'service', 'cost'];
     const hasAllHeaders = requiredHeaders.every(header => 
       headers.some(h => h.includes(header.toLowerCase()))
@@ -28,26 +28,41 @@ const CsvUploader: React.FC<CsvUploaderProps> = ({ onDataUpload }) => {
     
     const data: CostData[] = [];
     
+    // Find column indices for all possible fields
+    const monthIndex = headers.findIndex(h => h.includes('month'));
+    const deptIndex = headers.findIndex(h => h.includes('department'));
+    const projectIndex = headers.findIndex(h => h.includes('project') && !h.includes('name'));
+    const serviceIndex = headers.findIndex(h => h.includes('service') || h.includes('category'));
+    const costIndex = headers.findIndex(h => h.includes('cost') || h.includes('total'));
+    
+    // New field indices
+    const nameIndex = headers.findIndex(h => h.includes('name') && h.includes('tag'));
+    const categoryIndex = headers.findIndex(h => h.includes('category') && !h.includes('service'));
+    const projectNameIndex = headers.findIndex(h => h.includes('project') && h.includes('name'));
+    const ownerIndex = headers.findIndex(h => h.includes('owner'));
+    
     for (let i = 1; i < lines.length; i++) {
       const values = lines[i].split(',').map(v => v.trim());
       if (values.length < headers.length) continue;
       
-      const monthIndex = headers.findIndex(h => h.includes('month'));
-      const deptIndex = headers.findIndex(h => h.includes('department'));
-      const projectIndex = headers.findIndex(h => h.includes('project'));
-      const serviceIndex = headers.findIndex(h => h.includes('service'));
-      const costIndex = headers.findIndex(h => h.includes('cost'));
-      
       const cost = parseFloat(values[costIndex].replace(/[^\d.-]/g, ''));
       
       if (!isNaN(cost)) {
-        data.push({
+        const item: CostData = {
           month: values[monthIndex],
           department: values[deptIndex],
           project: values[projectIndex],
           service: values[serviceIndex],
           cost: cost
-        });
+        };
+        
+        // Add new fields if they exist
+        if (nameIndex !== -1 && values[nameIndex]) item.name = values[nameIndex];
+        if (categoryIndex !== -1 && values[categoryIndex]) item.category = values[categoryIndex];
+        if (projectNameIndex !== -1 && values[projectNameIndex]) item.projectName = values[projectNameIndex];
+        if (ownerIndex !== -1 && values[ownerIndex]) item.owner = values[ownerIndex];
+        
+        data.push(item);
       }
     }
     

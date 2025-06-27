@@ -5,6 +5,12 @@ export interface CostData {
   project: string;
   service: string;
   cost: number;
+  // New fields
+  name?: string;
+  total?: number;
+  category?: string;
+  projectName?: string;
+  owner?: string;
 }
 
 export const sampleData: CostData[] = [

@@ -7,6 +7,11 @@ interface FilterState {
   projects: string[];
   services: string[];
   timeRanges: string[];
+  // New filter fields
+  names: string[];
+  categories: string[];
+  projectNames: string[];
+  owners: string[];
 }
 
 export const useFilteredData = (data: CostData[], filters: FilterState) => {
@@ -21,7 +26,11 @@ export const useFilteredData = (data: CostData[], filters: FilterState) => {
       filters.departments.length > 0 ||
       filters.projects.length > 0 ||
       filters.services.length > 0 ||
-      filters.timeRanges.length > 0;
+      filters.timeRanges.length > 0 ||
+      filters.names.length > 0 ||
+      filters.categories.length > 0 ||
+      filters.projectNames.length > 0 ||
+      filters.owners.length > 0;
     
     if (!hasAnyFilters) return data;
     
@@ -31,9 +40,17 @@ export const useFilteredData = (data: CostData[], filters: FilterState) => {
       const serviceMatch = filters.services.length === 0 || filters.services.includes(item.service);
       const timeMatch = filters.timeRanges.length === 0 || filters.timeRanges.includes(item.month);
       
-      return departmentMatch && projectMatch && serviceMatch && timeMatch;
+      // New filter matches
+      const nameMatch = filters.names.length === 0 || (item.name && filters.names.includes(item.name));
+      const categoryMatch = filters.categories.length === 0 || (item.category && filters.categories.includes(item.category));
+      const projectNameMatch = filters.projectNames.length === 0 || (item.projectName && filters.projectNames.includes(item.projectName));
+      const ownerMatch = filters.owners.length === 0 || (item.owner && filters.owners.includes(item.owner));
+      
+      return departmentMatch && projectMatch && serviceMatch && timeMatch && 
+             nameMatch && categoryMatch && projectNameMatch && ownerMatch;
     });
-  }, [data, filters.departments, filters.projects, filters.services, filters.timeRanges]);
+  }, [data, filters.departments, filters.projects, filters.services, filters.timeRanges, 
+      filters.names, filters.categories, filters.projectNames, filters.owners]);
 };
 
 export const useUniqueValues = (data: CostData[]) => {
@@ -45,6 +62,12 @@ export const useUniqueValues = (data: CostData[]) => {
     const services = [...new Set(data.map(item => item.service))].sort();
     const months = [...new Set(data.map(item => item.month))].sort();
     
-    return { departments, projects, services, months };
+    // New unique values
+    const names = [...new Set(data.map(item => item.name).filter(Boolean))].sort();
+    const categories = [...new Set(data.map(item => item.category).filter(Boolean))].sort();
+    const projectNames = [...new Set(data.map(item => item.projectName).filter(Boolean))].sort();
+    const owners = [...new Set(data.map(item => item.owner).filter(Boolean))].sort();
+    
+    return { departments, projects, services, months, names, categories, projectNames, owners };
   }, [data]);
 };

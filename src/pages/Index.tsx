@@ -32,16 +32,26 @@ const Index = () => {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedTimeRanges, setSelectedTimeRanges] = useState<string[]>([]);
+  
+  // New multi-select filter states
+  const [selectedNames, setSelectedNames] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedProjectNames, setSelectedProjectNames] = useState<string[]>([]);
+  const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
 
   // Get unique values using optimized hook
-  const { departments, projects, services, months } = useUniqueValues(data);
+  const { departments, projects, services, months, names, categories, projectNames, owners } = useUniqueValues(data);
 
   // Filter data using optimized hook
   const filteredData = useFilteredData(data, {
     departments: selectedDepartments,
     projects: selectedProjects,
     services: selectedServices,
-    timeRanges: selectedTimeRanges
+    timeRanges: selectedTimeRanges,
+    names: selectedNames,
+    categories: selectedCategories,
+    projectNames: selectedProjectNames,
+    owners: selectedOwners
   });
 
   // Convert arrays to options for MultiSelect
@@ -49,6 +59,12 @@ const Index = () => {
   const projectOptions: Option[] = projects.map(project => ({ label: project, value: project }));
   const serviceOptions: Option[] = services.map(service => ({ label: service, value: service }));
   const timeRangeOptions: Option[] = months.map(month => ({ label: month, value: month }));
+  
+  // New options for MultiSelect
+  const nameOptions: Option[] = names.map(name => ({ label: name, value: name }));
+  const categoryOptions: Option[] = categories.map(category => ({ label: category, value: category }));
+  const projectNameOptions: Option[] = projectNames.map(projectName => ({ label: projectName, value: projectName }));
+  const ownerOptions: Option[] = owners.map(owner => ({ label: owner, value: owner }));
 
   // Calculate summary metrics
   const summaryMetrics = useMemo(() => {
@@ -73,12 +89,20 @@ const Index = () => {
     setSelectedProjects([]);
     setSelectedServices([]);
     setSelectedTimeRanges([]);
+    setSelectedNames([]);
+    setSelectedCategories([]);
+    setSelectedProjectNames([]);
+    setSelectedOwners([]);
   };
 
   const hasActiveFilters = selectedDepartments.length > 0 || 
                           selectedProjects.length > 0 || 
                           selectedServices.length > 0 || 
-                          selectedTimeRanges.length > 0;
+                          selectedTimeRanges.length > 0 ||
+                          selectedNames.length > 0 ||
+                          selectedCategories.length > 0 ||
+                          selectedProjectNames.length > 0 ||
+                          selectedOwners.length > 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -183,7 +207,8 @@ const Index = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {/* Existing filters */}
               <div className="space-y-2">
                 <Label>Departments ({selectedDepartments.length})</Label>
                 <MultiSelect
@@ -224,6 +249,55 @@ const Index = () => {
                 />
               </div>
               
+              {/* New filter fields */}
+              {names.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Name/TAG ({selectedNames.length})</Label>
+                  <MultiSelect
+                    options={nameOptions}
+                    selected={selectedNames}
+                    onChange={setSelectedNames}
+                    placeholder="Select names/tags..."
+                  />
+                </div>
+              )}
+              
+              {categories.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Category/Service ({selectedCategories.length})</Label>
+                  <MultiSelect
+                    options={categoryOptions}
+                    selected={selectedCategories}
+                    onChange={setSelectedCategories}
+                    placeholder="Select categories..."
+                  />
+                </div>
+              )}
+              
+              {projectNames.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Project Name ({selectedProjectNames.length})</Label>
+                  <MultiSelect
+                    options={projectNameOptions}
+                    selected={selectedProjectNames}
+                    onChange={setSelectedProjectNames}
+                    placeholder="Select project names..."
+                  />
+                </div>
+              )}
+              
+              {owners.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Owner ({selectedOwners.length})</Label>
+                  <MultiSelect
+                    options={ownerOptions}
+                    selected={selectedOwners}
+                    onChange={setSelectedOwners}
+                    placeholder="Select owners..."
+                  />
+                </div>
+              )}
+              
               <div className="space-y-2">
                 <Label>Group By</Label>
                 <select 
@@ -235,6 +309,10 @@ const Index = () => {
                   <option value="project">Project</option>
                   <option value="service">Service</option>
                   <option value="month">Month</option>
+                  <option value="name">Name/TAG</option>
+                  <option value="category">Category</option>
+                  <option value="projectName">Project Name</option>
+                  <option value="owner">Owner</option>
                 </select>
               </div>
             </div>
@@ -262,6 +340,26 @@ const Index = () => {
                   {selectedTimeRanges.map(time => (
                     <Badge key={`time-${time}`} variant="secondary" className="bg-slate-100 text-slate-800">
                       Time: {time}
+                    </Badge>
+                  ))}
+                  {selectedNames.map(name => (
+                    <Badge key={`name-${name}`} variant="secondary" className="bg-purple-100 text-purple-800">
+                      Name: {name}
+                    </Badge>
+                  ))}
+                  {selectedCategories.map(category => (
+                    <Badge key={`cat-${category}`} variant="secondary" className="bg-pink-100 text-pink-800">
+                      Category: {category}
+                    </Badge>
+                  ))}
+                  {selectedProjectNames.map(projectName => (
+                    <Badge key={`pname-${projectName}`} variant="secondary" className="bg-orange-100 text-orange-800">
+                      Project: {projectName}
+                    </Badge>
+                  ))}
+                  {selectedOwners.map(owner => (
+                    <Badge key={`owner-${owner}`} variant="secondary" className="bg-green-100 text-green-800">
+                      Owner: {owner}
                     </Badge>
                   ))}
                 </div>
